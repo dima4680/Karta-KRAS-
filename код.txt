@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта загруженности вагонов</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
+    <style>
+        #map-container {
+            position: relative;
+            width: 100%;
+            height: 800px;
+            overflow: hidden;
+        }
+        #map-image {
+            position: absolute;
+            max-width: none;
+        }
+        .custom-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+        .marker-circle {
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-weight: bold;
+            font-family: Arial;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+        /* Остальные стили оставляем без изменений */
+    </style>
+</head>
+<body>
+    <!-- Все элементы управления оставляем без изменений -->
+    <div class="auth-section">
+        <input type="text" id="username" placeholder="Логин">
+        <input type="password" id="password" placeholder="Пароль">
+        <button id="loginBtn">Войти</button>
+        <button id="logoutBtn" class="hidden">Выйти</button>
+    </div>
+    <h1>Карта загруженности вагонов</h1>
+    <input type="file" id="excelFile" accept=".xlsx, .xls" class="hidden">
+    <button id="saveDataBtn" class="hidden">Сохранить данные</button>
+    <button id="shareDataBtn" class="hidden">Поделиться данными</button>
+    
+    <!-- Контейнер для карты -->
+    <div id="map-container">
+        <img id="map-image" src="URL_ВАШЕЙ_КАРТИНКИ" alt="Карта">
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Размеры оригинального изображения карты
+        const IMAGE_WIDTH = 2000; // Укажите реальную ширину вашего изображения
+        const IMAGE_HEIGHT = 1200; // Укажите реальную высоту вашего изображения
+        
+        // Контейнер и изображение карты
+        const container = document.getElementById('map-container');
+        const mapImage = document.getElementById('map-image');
+        
+        // Масштабирование изображения
+        function updateImageSize() {
+            const containerRatio = container.offsetWidth / container.offsetHeight;
+            const imageRatio = IMAGE_WIDTH / IMAGE_HEIGHT;
+            
+            if (containerRatio > imageRatio) {
+                mapImage.style.height = '100%';
+                mapImage.style.width = 'auto';
+            } else {
+                mapImage.style.width = '100%';
+                mapImage.style.height = 'auto';
+            }
+        }
+        
+        // Функции для работы с координатами
+        function getRelativeCoordinates(x, y) {
+            const rect = mapImage.getBoundingClientRect();
+            return {
+                x: (x / IMAGE_WIDTH) * rect.width,
+                y: (y / IMAGE_HEIGHT) * rect.height
+            };
+        }
+
+        // Функции для маркеров (аналогичны предыдущим)
+        function getMarkerColor(free, total) {
+            const percentage = (free / total) * 100;
+            if (percentage === 0) return '#ff4444';
+            if (percentage === 100) return '#00c851';
+            return '#ffbb33';
+        }
+
+        function getMarkerSize(total) {
+            const minSize = 40;
+            const maxSize = 70;
+            const minWagons = 10;
+            const maxWagons = 100;
+            return Math.min(maxSize, Math.max(minSize, 
+                ((total - minWagons) / (maxWagons - minWagons)) * (maxSize - minSize) + minSize
+            ));
+        }
+
+        // Отображение данных
+        function displayData(data) {
+            // Удаляем старые маркеры
+            document.querySelectorAll('.custom-marker').forEach(m => m.remove());
+            
+            data.forEach(row => {
+                const x = row['Координата X']; // Новая колонка с X координатой
+                const y = row['Координата Y']; // Новая колонка с Y координатой
+                const station = row['Станция'];
+                const free = row['Свободные вагоны'];
+                const total = row['Всего вагонов'];
+
+                if (x && y && free !== undefined && total !== undefined) {
+                    const pos = getRelativeCoordinates(x, y);
+                    const size = getMarkerSize(total);
+                    
+                    const marker = document.createElement('div');
+                    marker.className = 'custom-marker';
+                    marker.style.left = `${pos.x}px`;
+                    marker.style.top = `${pos.y}px`;
+                    marker.innerHTML = `
+                        <div class="marker-circle" 
+                            style="
+                                width: ${size}px;
+                                height: ${size}px;
+                                background: ${getMarkerColor(free, total)};
+                                font-size: ${size * 0.4}px;
+                            ">
+                            ${free}/${total}
+                        </div>
+                    `;
+                    
+                    // Добавляем обработчик клика
+                    marker.querySelector('.marker-circle').addEventListener('click', () => {
+                        alert(`
+                            ${station}\n
+                            Свободно: ${free} из ${total} вагонов\n
+                            В отстое: ${total - free} вагонов\n
+                            Контакты для связи: 8(391)259-54-70\n
+                            Обновлено: 12.02.25
+                        `);
+                    });
+                    
+                    container.appendChild(marker);
+                }
+            });
+        }
+
+        // Остальной код (авторизация, работа с файлами и т.д.) остается без изменений
+        // ... (все скрипты из оригинального кода, начиная с функции compressData)
+
+        // Инициализация
+        window.addEventListener('resize', updateImageSize);
+        updateImageSize();
+
+        // Проверка авторизации при загрузке страницы
+        checkAuth();
+    </script>
+</body>
+</html>
