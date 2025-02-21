@@ -55,7 +55,7 @@
     
     <!-- Контейнер для карты -->
     <div id="map-container">
-        <img id="map-image" src="https://postimg.cc/SYQCxGqX" alt="Карта">
+        <img id="map-image" src="https://i.postimg.cc/SYQCxGqX/krasnoyarskaya-page-0001.jpg" alt="Карта">
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -115,13 +115,13 @@
             document.querySelectorAll('.custom-marker').forEach(m => m.remove());
             
             data.forEach(row => {
-                const x = row['Координата X']; // Новая колонка с X координатой
-                const y = row['Координата Y']; // Новая колонка с Y координатой
+                const x = parseFloat(row['Координата X']); // Преобразуем в число
+                const y = parseFloat(row['Координата Y']); // Преобразуем в число
                 const station = row['Станция'];
-                const free = row['Свободные вагоны'];
-                const total = row['Всего вагонов'];
+                const free = parseInt(row['Свободные вагоны']);
+                const total = parseInt(row['Всего вагонов']);
 
-                if (x && y && free !== undefined && total !== undefined) {
+                if (!isNaN(x) && !isNaN(y) && !isNaN(free) && !isNaN(total)) {
                     const pos = getRelativeCoordinates(x, y);
                     const size = getMarkerSize(total);
                     
@@ -148,6 +148,7 @@
                             Свободно: ${free} из ${total} вагонов\n
                             В отстое: ${total - free} вагонов\n
                             Контакты для связи: 8(391)259-54-70\n
+                            Обновлено: 12.02.25
                         `);
                     });
                     
