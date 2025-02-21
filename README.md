@@ -33,11 +33,15 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             cursor: pointer;
         }
-        /* Остальные стили оставляем без изменений */
+        .auth-section {
+            margin-bottom: 20px;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- Все элементы управления оставляем без изменений -->
     <div class="auth-section">
         <input type="text" id="username" placeholder="Логин">
         <input type="password" id="password" placeholder="Пароль">
@@ -51,14 +55,14 @@
     
     <!-- Контейнер для карты -->
     <div id="map-container">
-        <img id="map-image" src="URL_ВАШЕЙ_КАРТИНКИ" alt="Карта">
+        <img id="map-image" src="https://i.ibb.co/XkpbjSjV/krasnoyarskaya-page-0001.jpg" alt="Карта">
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         // Размеры оригинального изображения карты
-        const IMAGE_WIDTH = 2000; // Укажите реальную ширину вашего изображения
-        const IMAGE_HEIGHT = 1200; // Укажите реальную высоту вашего изображения
+        const IMAGE_WIDTH = 9934; // Ширина вашего изображения
+        const IMAGE_HEIGHT = 7016; // Высота вашего изображения
         
         // Контейнер и изображение карты
         const container = document.getElementById('map-container');
@@ -87,7 +91,7 @@
             };
         }
 
-        // Функции для маркеров (аналогичны предыдущим)
+        // Функции для маркеров
         function getMarkerColor(free, total) {
             const percentage = (free / total) * 100;
             if (percentage === 0) return '#ff4444';
@@ -144,7 +148,6 @@
                             Свободно: ${free} из ${total} вагонов\n
                             В отстое: ${total - free} вагонов\n
                             Контакты для связи: 8(391)259-54-70\n
-                            Обновлено: 12.02.25
                         `);
                     });
                     
@@ -153,8 +156,111 @@
             });
         }
 
-        // Остальной код (авторизация, работа с файлами и т.д.) остается без изменений
-        // ... (все скрипты из оригинального кода, начиная с функции compressData)
+        // Сжатие данных
+        function compressData(data) {
+            return LZString.compressToEncodedURIComponent(JSON.stringify(data));
+        }
+
+        // Декомпрессия данных
+        function decompressData(compressed) {
+            try {
+                return JSON.parse(LZString.decompressFromEncodedURIComponent(compressed));
+            } catch (e) {
+                alert('Ошибка декомпрессии данных: ' + e.message);
+                return null;
+            }
+        }
+
+        // Проверка авторизации
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            document.getElementById('excelFile').classList.toggle('hidden', !isLoggedIn);
+            document.getElementById('logoutBtn').classList.toggle('hidden', !isLoggedIn);
+            document.getElementById('loginBtn').classList.toggle('hidden', isLoggedIn);
+            document.getElementById('saveDataBtn').classList.toggle('hidden', !isLoggedIn);
+            document.getElementById('shareDataBtn').classList.toggle('hidden', !isLoggedIn);
+        }
+
+        // Обработчик входа
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username === 'admin' && password === 'admin') {
+                localStorage.setItem('isLoggedIn', 'true');
+                checkAuth();
+            } else {
+                alert('Неверный логин или пароль');
+            }
+        });
+
+        // Обработчик выхода
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.setItem('isLoggedIn', 'false');
+            checkAuth();
+        });
+
+        // Обработчик загрузки файла
+        document.getElementById('excelFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                localStorage.setItem('mapData', JSON.stringify(jsonData));
+                displayData(jsonData);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Обработчик сохранения данных
+        document.getElementById('saveDataBtn').addEventListener('click', () => {
+            alert(localStorage.getItem('mapData') ? 'Данные сохранены!' : 'Нет данных');
+        });
+
+        // Обработчик кнопки "Поделиться данными"
+        document.getElementById('shareDataBtn').addEventListener('click', async () => {
+            const rawData = localStorage.getItem('mapData');
+            if (!rawData) return alert('Нет данных для分享');
+
+            try {
+                const jsonData = JSON.parse(rawData);
+                const compressed = compressData(jsonData);
+                const shareUrl = `${window.location.href.split('?')[0]}?d=${compressed}`;
+
+                // Копирование в буфер обмена
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    alert('Сокращенная ссылка скопирована:\n' + shareUrl);
+                } catch (err) {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = shareUrl;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('Ссылка скопирована вручную:\n' + shareUrl);
+                }
+            } catch (e) {
+                alert('Ошибка генерации ссылки: ' + e.message);
+            }
+        });
+
+        // Загрузка данных из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const compressedData = urlParams.get('d');
+        if (compressedData) {
+            const jsonData = decompressData(compressedData);
+            if (jsonData) {
+                displayData(jsonData);
+                document.querySelectorAll('.auth-section, #excelFile, #saveDataBtn, #shareDataBtn')
+                    .forEach(el => el.classList.add('hidden'));
+            }
+        } else if (localStorage.getItem('mapData')) {
+            displayData(JSON.parse(localStorage.getItem('mapData')));
+        }
 
         // Инициализация
         window.addEventListener('resize', updateImageSize);
