@@ -8,15 +8,23 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
     <style>
+        /* Основные стили */
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
         #map-container {
             position: relative;
-            width: 100%;
-            height: 800px;
-            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
         }
         #map-image {
-            position: absolute;
-            max-width: none;
+            display: block;
+            width: 9934px; /* Оригинальная ширина изображения */
+            height: 7016px; /* Оригинальная высота изображения */
         }
         .custom-marker {
             position: absolute;
@@ -34,7 +42,13 @@
             cursor: pointer;
         }
         .auth-section {
-            margin-bottom: 20px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
         }
         .hidden {
             display: none;
@@ -42,17 +56,26 @@
     </style>
 </head>
 <body>
+    <!-- Секция авторизации -->
     <div class="auth-section">
         <input type="text" id="username" placeholder="Логин">
         <input type="password" id="password" placeholder="Пароль">
         <button id="loginBtn">Войти</button>
         <button id="logoutBtn" class="hidden">Выйти</button>
     </div>
-    <h1>Карта загруженности вагонов</h1>
-    <input type="file" id="excelFile" accept=".xlsx, .xls" class="hidden">
-    <button id="saveDataBtn" class="hidden">Сохранить данные</button>
-    <button id="shareDataBtn" class="hidden">Поделиться данными</button>
-    
+
+    <!-- Заголовок -->
+    <h1 style="position: fixed; top: 10px; left: 300px; z-index: 1000; background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 5px;">
+        Карта загруженности вагонов
+    </h1>
+
+    <!-- Кнопки управления -->
+    <div style="position: fixed; top: 80px; left: 10px; z-index: 1000; background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 5px;">
+        <input type="file" id="excelFile" accept=".xlsx, .xls" class="hidden">
+        <button id="saveDataBtn" class="hidden">Сохранить данные</button>
+        <button id="shareDataBtn" class="hidden">Поделиться данными</button>
+    </div>
+
     <!-- Контейнер для карты -->
     <div id="map-container">
         <img id="map-image" src="https://i.postimg.cc/SYQCxGqX/krasnoyarskaya-page-0001.jpg" alt="Карта">
@@ -63,25 +86,11 @@
         // Размеры оригинального изображения карты
         const IMAGE_WIDTH = 9934; // Ширина вашего изображения
         const IMAGE_HEIGHT = 7016; // Высота вашего изображения
-        
+
         // Контейнер и изображение карты
         const container = document.getElementById('map-container');
         const mapImage = document.getElementById('map-image');
-        
-        // Масштабирование изображения
-        function updateImageSize() {
-            const containerRatio = container.offsetWidth / container.offsetHeight;
-            const imageRatio = IMAGE_WIDTH / IMAGE_HEIGHT;
-            
-            if (containerRatio > imageRatio) {
-                mapImage.style.height = '100%';
-                mapImage.style.width = 'auto';
-            } else {
-                mapImage.style.width = '100%';
-                mapImage.style.height = 'auto';
-            }
-        }
-        
+
         // Функции для работы с координатами
         function getRelativeCoordinates(x, y) {
             const rect = mapImage.getBoundingClientRect();
@@ -113,7 +122,7 @@
         function displayData(data) {
             // Удаляем старые маркеры
             document.querySelectorAll('.custom-marker').forEach(m => m.remove());
-            
+
             data.forEach(row => {
                 const x = parseFloat(row['Координата X']); // Преобразуем в число
                 const y = parseFloat(row['Координата Y']); // Преобразуем в число
@@ -124,7 +133,7 @@
                 if (!isNaN(x) && !isNaN(y) && !isNaN(free) && !isNaN(total)) {
                     const pos = getRelativeCoordinates(x, y);
                     const size = getMarkerSize(total);
-                    
+
                     const marker = document.createElement('div');
                     marker.className = 'custom-marker';
                     marker.style.left = `${pos.x}px`;
@@ -140,7 +149,7 @@
                             ${free}/${total}
                         </div>
                     `;
-                    
+
                     // Добавляем обработчик клика
                     marker.querySelector('.marker-circle').addEventListener('click', () => {
                         alert(`
@@ -151,7 +160,7 @@
                             Обновлено: 12.02.25
                         `);
                     });
-                    
+
                     container.appendChild(marker);
                 }
             });
