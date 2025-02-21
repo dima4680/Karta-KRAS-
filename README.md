@@ -78,7 +78,7 @@
 
     <!-- Контейнер для карты -->
     <div id="map-container">
-        <img id="map-image" src="https://i.postimg.cc/SYQCxGqX/krasnoyarskaya-page-0001.jpg" alt="Карта">
+        <img id="map-image" src="file:///C:/Users/user/Desktop/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%B0%D1%8F%20%D0%BA%D0%B0%D1%80%D1%82%D0%B0/krasnoyarskaya_page-0001.jpg" alt="Карта">
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
