@@ -55,7 +55,7 @@
     
     <!-- Контейнер для карты -->
     <div id="map-container">
-        <img id="map-image" src="https://i.ibb.co/XkpbjSjV/krasnoyarskaya-page-0001.jpg" alt="Карта">
+        <img id="map-image" src="https://postimg.cc/SYQCxGqX" alt="Карта">
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
