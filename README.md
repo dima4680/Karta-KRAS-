@@ -4,76 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Карта загруженности ПНП на КРАС ЖД</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
-    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
     <style>
-        /* Основные стили */
-        body, html {
+        /* Стили для улучшения качества отображения изображения */
+        body {
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-        #map-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            overflow: auto;
-        }
-        #map-image {
-            display: block;
-            width: 9934px; /* Оригинальная ширина изображения */
-            height: 7016px; /* Оригинальная высота изображения */
-            transform-origin: 0 0; /* Точка масштабирования */
-            transition: transform 0.2s ease; /* Плавное масштабирование */
-        }
-        .custom-marker {
-            position: absolute;
-            transform: translate(-50%, -50%);
-        }
-        .marker-circle {
-            border-radius: 50%;
             display: flex;
-            align-items: center;
             justify-content: center;
-            color: black;
-            font-weight: bold;
-            font-family: Arial;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            cursor: pointer;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4; /* Цвет фона */
         }
-        .auth-section {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1000;
+
+        .image-container {
+            max-width: 100%; /* Адаптивность */
+            text-align: center;
         }
-        .hidden {
-            display: none;
+
+        img {
+            max-width: 100%; /* Изображение будет адаптироваться под контейнер */
+            height: auto; /* Сохранение пропорций */
+            image-rendering: crisp-edges; /* Для сохранения четкости при масштабировании */
         }
-        .zoom-controls {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1000;
-        }
-        .zoom-controls button {
-            display: block;
-            margin: 5px 0;
-            padding: 5px 10px;
-            font-size: 16px;
-            cursor: pointer;
+
+        h1 {
+            font-family: Arial, sans-serif;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
+    <div class="image-container">
+        <h1>Карта загруженности ПНП на КРАС ЖД</h1>
+        <img src="https://i.ibb.co/d0jg4VgF/krasnoyarskaya-page-0001.jpg" alt="Карта загруженности ПНП на КРАС ЖД">
+    </div>
+</body>
     <!-- Секция авторизации -->
     <div class="auth-section">
         <input type="text" id="username" placeholder="Логин">
