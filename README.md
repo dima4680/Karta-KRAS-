@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Карта загруженности вагонов</title>
+    <title>Карта загруженности ПНП на КРАС ЖД</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
@@ -66,7 +66,7 @@
 
     <!-- Заголовок -->
     <h1 style="position: fixed; top: 10px; left: 300px; z-index: 1000; background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 5px;">
-        Карта загруженности вагонов
+        Карта загруженности ПНП на КРАС ЖД
     </h1>
 
     <!-- Кнопки управления -->
@@ -78,7 +78,7 @@
 
     <!-- Контейнер для карты -->
     <div id="map-container">
-        <img id="map-image" src="file:///C:/Users/user/Desktop/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%B0%D1%8F%20%D0%BA%D0%B0%D1%80%D1%82%D0%B0/krasnoyarskaya_page-0001.jpg" alt="Карта">
+        <img id="map-image" src="https://i.ibb.co/d0jg4VgF/krasnoyarskaya-page-0001.jpg" alt="Карта">
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
