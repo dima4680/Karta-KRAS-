@@ -25,6 +25,8 @@
             display: block;
             width: 9934px; /* Оригинальная ширина изображения */
             height: 7016px; /* Оригинальная высота изображения */
+            transform-origin: 0 0; /* Точка масштабирования */
+            transition: transform 0.2s ease; /* Плавное масштабирование */
         }
         .custom-marker {
             position: absolute;
@@ -53,6 +55,22 @@
         .hidden {
             display: none;
         }
+        .zoom-controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        .zoom-controls button {
+            display: block;
+            margin: 5px 0;
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -76,6 +94,12 @@
         <button id="shareDataBtn" class="hidden">Поделиться данными</button>
     </div>
 
+    <!-- Элементы управления зумом -->
+    <div class="zoom-controls">
+        <button id="zoomInBtn">+</button>
+        <button id="zoomOutBtn">-</button>
+    </div>
+
     <!-- Контейнер для карты -->
     <div id="map-container">
         <img id="map-image" src="https://i.ibb.co/d0jg4VgF/krasnoyarskaya-page-0001.jpg" alt="Карта">
@@ -91,12 +115,31 @@
         const container = document.getElementById('map-container');
         const mapImage = document.getElementById('map-image');
 
+        // Масштабирование
+        let scale = 1; // Начальный масштаб
+        const ZOOM_FACTOR = 0.2; // Шаг масштабирования
+
+        // Функция для обновления масштаба
+        function updateScale(newScale) {
+            scale = Math.max(0.5, Math.min(3, newScale)); // Ограничиваем масштаб от 0.5x до 3x
+            mapImage.style.transform = `scale(${scale})`;
+        }
+
+        // Обработчики кнопок зума
+        document.getElementById('zoomInBtn').addEventListener('click', () => {
+            updateScale(scale + ZOOM_FACTOR);
+        });
+
+        document.getElementById('zoomOutBtn').addEventListener('click', () => {
+            updateScale(scale - ZOOM_FACTOR);
+        });
+
         // Функции для работы с координатами
         function getRelativeCoordinates(x, y) {
             const rect = mapImage.getBoundingClientRect();
             return {
-                x: (x / IMAGE_WIDTH) * rect.width,
-                y: (y / IMAGE_HEIGHT) * rect.height
+                x: (x / IMAGE_WIDTH) * rect.width * scale,
+                y: (y / IMAGE_HEIGHT) * rect.height * scale
             };
         }
 
